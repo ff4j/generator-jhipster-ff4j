@@ -1,0 +1,10 @@
+{
+  "generator-jhipster-module": {
+    "promptValues": {
+      "githubName": "clun",
+      "authorName": "Cedrick Lunven",
+      "authorEmail": "cedrick.lunven@gmail.com",
+      "authorUrl": "ff4j.org"
+    }
+  }
+}
