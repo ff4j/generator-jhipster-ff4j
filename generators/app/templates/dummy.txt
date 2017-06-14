@@ -1,2 +1,0 @@
-hello ff4j!
-It's dummy.txt
