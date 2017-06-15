@@ -5,15 +5,19 @@ const chalk     	= require('chalk');
 const generator 	= require('yeoman-generator');
 const packagejs 	= require('../../package.json');
 
+
 // Stores JHipster variables
 const jhipsterVar 	= { moduleName: 'ff4j' };
 
 // Stores JHipster functions
 const jhipsterFunc 	= {};
 
+//Stores JHipster functions
+const jhipsterUtils = {};
+
 // Constants
-const TPL 			= 'template';
-const FF4J_VERSION  = '1.6.4';
+const TPL 					= 'template';
+const FF4J_VERSION  		= '1.6.4';
 
 // Functions available
 module.exports = generator.extend( {
@@ -23,7 +27,10 @@ module.exports = generator.extend( {
     // ----------------------------------------------------
     initializing: {
     	compose() {
-            this.composeWith('jhipster:modules',   { jhipsterVar, jhipsterFunc },
+            this.composeWith('jhipster:modules',   { 
+            	jhipsterVar, 
+            	jhipsterFunc,
+            	jhipsterUtils},
                 this.options.testmode ? { local: require.resolve('generator-jhipster/generators/modules') } : null
             );
         },
@@ -60,7 +67,7 @@ module.exports = generator.extend( {
                   {name: 'SQL', value: 'sql'},
                   {name: 'XML', value: 'xml'},
                 ],
-                default: 'same' },
+                default: 'same' },/*
               {
                   type: 'list',
                   name: 'ff4jPropertyStore',
@@ -100,7 +107,7 @@ module.exports = generator.extend( {
                       {name: 'Redis', value: 'neo4j'},
                       {name: 'SQL', value: 'sql'},
                     ],
-                    default: 'same' },
+                    default: 'same' },*/
         ];
         
         // After prompting, put variables in the context
@@ -115,9 +122,14 @@ module.exports = generator.extend( {
     // -----------------------------------------
     writing() {
     	
-    	this.log(`Writing()`);
+    	this.log(`\n${chalk.bold.green('[jhipster-ff4j]')} - Start processing....`);
     	
-    	// Small function to copy template to destination
+    	/**
+         * Copy a file from Generator to target.
+         *
+         * @param {string} source - source of the file
+         * @param {string} destination - relative destination path
+         */
         this.template = function (source, destination) {
             this.fs.copyTpl(
                 this.templatePath(source),
@@ -126,7 +138,12 @@ module.exports = generator.extend( {
             );
         };
         
-        // COPY function
+        /**
+         * Leveraging on 'copyTemplate'
+         *
+         * @param {stringArray} files - instructions to copy (from, to)
+         */
+        
         this.copyFiles = function (files) {
             files.forEach( function(file) {
               jhipsterFunc.copyTemplate(file.from, file.to, 
@@ -134,55 +151,84 @@ module.exports = generator.extend( {
             }, this);
         };
         
+        // Extract core information
         this.baseName 				= jhipsterVar.baseName;
         this.packageName 			= jhipsterVar.packageName;
-this.angularAppName 		= jhipsterVar.angularAppName;
+        this.angularAppName 		= jhipsterVar.angularAppName;
+        
+        // Core config
         this.clientFramework 		= jhipsterVar.clientFramework;
         this.clientPackageManager 	= jhipsterVar.clientPackageManager;
+        this.enableTranslation		= jhipsterVar.enableTranslation;
         
+        // DataBase (used to setup ff4j as well)
+        this.databaseType			= jhipsterVar.databaseType;
+        this.devDatabaseType		= jhipsterVar.devDatabaseType;
+        this.prodDatabaseType		= jhipsterVar.prodDatabaseType;
+        
+        // Path Config
         const javaDir 				= jhipsterVar.javaDir;
         const resourceDir 			= jhipsterVar.resourceDir;
         const webappDir 			= jhipsterVar.webappDir;
-        
         this.javaDir 				= jhipsterVar.javaDir;
         this.javaTemplateDir 		= 'src/main/java/package';
         this.message = this.props.message;
-
-        this.log('\n--- some config read from config ---');
-        this.log(`baseName=${this.baseName}`);
-        this.log(`packageName=${this.packageName}`);
-        this.log(`angularAppName=${this.angularAppName}`);
-        this.log(`clientFramework=${this.clientFramework}`);
-        this.log(`clientPackageManager=${this.clientPackageManager}`);
-        
-        this.log(`javaDir=${javaDir}`);
-        this.log(`resourceDir=${resourceDir}`);
-        this.log(`webappDir=${webappDir}`);
-        this.log(`\nmessage=${this.message}`);
-        this.log('------\n');
-
+        this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Variable have been set up`);
+       
         // Update Dependencies
         if (jhipsterVar.buildTool === 'maven') {
             jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-core', 			     FF4J_VERSION);
             jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-web', 				 FF4J_VERSION);
             jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-spring-services', 	 FF4J_VERSION);
             jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-spring-boot-web-api',  FF4J_VERSION);
+            this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Dependencie added to Maven (pom.xml)`);
             
         } else if (jhipsterVar.buildTool === 'gradle') {
         	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-core', 			 	 FF4J_VERSION);
             jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-web',  			 	 FF4J_VERSION);
             jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-spring-services', 	 FF4J_VERSION);
             jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-spring-boot-web-api', FF4J_VERSION);
-            
+            this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Dependencie added to Gradle`);
         }
         
         // Copy Files (Java)
         files = [
-        	// Register Servlet and FF4J bean
             { from: this.javaTemplateDir + '/config/ff4j/_FF4jWebConfiguration.java', to: this.javaDir + 'config/ff4j/FF4jWebConfiguration.java'}
           ];
-          this.copyFiles(files);
-          //jhipsterFunc.addChangelogToLiquibase(this.changelogDate + '_added_entity_EntityAuditEvent');
+        this.copyFiles(files);
+        this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Template files have been copied`);
+        
+        // Add the link in WebPack
+        jhipsterFunc.rewriteFile('webpack/webpack.dev.js', 'jhipster-needle-add-entity-to-webpack', "'/ff4j-web-console',");
+        this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Webpack updated`);
+        
+        // Add element in the menu
+        if (this.clientFramework === 'angular1') {
+        	jhipsterFunc.rewriteFile(
+            		'src/main/webapp/app/layouts/navbar/navbar.html',
+            		'jhipster-needle-add-element-to-admin-menu',
+            		
+            		'<li ui-sref-active="active">\n'+
+            		' <a ui-sref="./ff4j-web-console/home?lang=en" ng-click="vm.collapseNavbar()">\n' +
+            		'<span class="glyphicon glyphicon-toggle-on"></span>&nbsp;\n '+
+            		'<span>Feature Toggle</span>\n'+
+            		'</a> </li>\n');
+        } else {
+        	jhipsterFunc.rewriteFile(
+             		'src/main/webapp/app/layouts/navbar/navbar.component.html',
+             		'jhipster-needle-add-element-to-admin-menu',
+             		
+             		'<li> <a class="dropdown-item" href="./ff4j-web-console/home?lang=en" target="_tab" (click)="collapseNavbar()">\n'+
+                    '  <i class="fa fa-fw fa-toggle-on" aria-hidden="true"></i>&nbsp;\n' +
+                    '  <span>Feature Toggle</span>\n' +
+                    ' </a>\n</li>');
+        }
+        
+        // Is not a function....
+        //jhipsterFunc.addEntityToWebpack('ff4j-web-console', this.enableTranslation, this.clientFramework);
+        
+        // It's not a rooter
+        //jhipsterFunc.addElementToAdminMenu('ff4j-web-console', 'toggle-on', this.enableTranslation, this.clientFramework);
     },
     
 
@@ -213,7 +259,6 @@ this.angularAppName 		= jhipsterVar.angularAppName;
     },
 
     end() {
-    	this.log(`end()`);
         this.log('End of ff4j generator');
     }
 });
