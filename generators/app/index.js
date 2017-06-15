@@ -122,27 +122,15 @@ module.exports = generator.extend( {
     // -----------------------------------------
     writing() {
     	
-    	this.log(`\n${chalk.bold.green('[jhipster-ff4j]')} - Start processing....`);
-    	
-    	/**
-         * Copy a file from Generator to target.
-         *
-         * @param {string} source - source of the file
-         * @param {string} destination - relative destination path
-         */
-        this.template = function (source, destination) {
+    	this.log(`\n${chalk.bold.green('[jhipster-ff4j]')} - Starting `);
+
+    	this.template = function (source, destination) {
             this.fs.copyTpl(
                 this.templatePath(source),
                 this.destinationPath(destination),
                 this
             );
         };
-        
-        /**
-         * Leveraging on 'copyTemplate'
-         *
-         * @param {stringArray} files - instructions to copy (from, to)
-         */
         
         this.copyFiles = function (files) {
             files.forEach( function(file) {
@@ -171,39 +159,42 @@ module.exports = generator.extend( {
         const resourceDir 			= jhipsterVar.resourceDir;
         const webappDir 			= jhipsterVar.webappDir;
         this.javaDir 				= jhipsterVar.javaDir;
+        this.resourceDir			= jhipsterVar.resourceDir;
         this.javaTemplateDir 		= 'src/main/java/package';
-        this.message = this.props.message;
-        this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Variable have been set up`);
+        this.message 				= this.props.message;
        
         // Update Dependencies
         if (jhipsterVar.buildTool === 'maven') {
+            this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding dependencies to Maven (pom.xml)`);
             jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-core', 			     FF4J_VERSION);
             jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-web', 				 FF4J_VERSION);
             jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-spring-services', 	 FF4J_VERSION);
             jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-spring-boot-web-api',  FF4J_VERSION);
-            this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Dependencie added to Maven (pom.xml)`);
             
         } else if (jhipsterVar.buildTool === 'gradle') {
+            this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding dependencies to Gradle`);
         	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-core', 			 	 FF4J_VERSION);
             jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-web',  			 	 FF4J_VERSION);
             jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-spring-services', 	 FF4J_VERSION);
             jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-spring-boot-web-api', FF4J_VERSION);
-            this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Dependencie added to Gradle`);
         }
         
         // Copy Files (Java)
         files = [
-            { from: this.javaTemplateDir + '/config/ff4j/_FF4jWebConfiguration.java', to: this.javaDir + 'config/ff4j/FF4jWebConfiguration.java'}
+            { from: this.javaTemplateDir + '/config/ff4j/_FF4jWebConfiguration.java',  to: this.javaDir + 'config/ff4j/FF4jWebConfiguration.java'},
+            { from: this.javaTemplateDir + '/config/_SecurityCsrfRequestMatcher.java', to: this.javaDir + 'config/SecurityCsrfRequestMatcher.java'},
+            { from: 'src/main/resources/ff4j.xml', to: this.resourceDir + 'ff4j.xml'}
           ];
+        this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Importing templates`);
         this.copyFiles(files);
-        this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Template files have been copied`);
         
-        // Add the link in WebPack
+        // Add link in WebPack
+        this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Updating Webpack`);
         jhipsterFunc.rewriteFile('webpack/webpack.dev.js', 'jhipster-needle-add-entity-to-webpack', "'/ff4j-web-console',");
-        this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Webpack updated`);
         
         // Add Reference the Admin menu
-        if (this.clientFramework === 'angular1') {
+        this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding reference in the Admin Menu`);
+    	if (this.clientFramework === 'angular1') {
         	jhipsterFunc.rewriteFile(
             		'src/main/webapp/app/layouts/navbar/navbar.html',
             		'jhipster-needle-add-element-to-admin-menu',
@@ -223,11 +214,26 @@ module.exports = generator.extend( {
                     '  <span>Feature Toggle</span>\n' +
                     ' </a>\n</li>');
         }
-    	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Reference added in the Admin Menu`);
+    	
+    	// Update CSRF to allow request
+    	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Updating security configuration`);
+    	jhipsterFunc.replaceContent(this.javaDir + 'config/SecurityConfiguration.java', 
+    			'.csrf()', 
+    			'.csrf().requireCsrfProtectionMatcher(new SecurityCsrfRequestMatcher())');
+    	// Secured access to the servlet
+    	jhipsterFunc.replaceContent(this.javaDir + 'config/SecurityConfiguration.java', 
+    			' .authorizeRequests()', 
+    			' .authorizeRequests()\n            .antMatchers("/ff4j-web-console/**").hasAuthority(AuthoritiesConstants.ADMIN)');
         
+    	// ----- KO ----
+    	
+    	// Should no be open 
+    	//jhipsterFunc.replaceContent(this.javaDir + 'config/SecurityConfiguration.java', 
+    	//		' .antMatchers("/app/**/*.{js,html}")', 
+    	//		' .antMatchers("/app/**/*.{js,html}")\n            .antMatchers("/ff4j-web-console/**")');
+    	
         // Is not a function....
         //jhipsterFunc.addEntityToWebpack('ff4j-web-console', this.enableTranslation, this.clientFramework);
-        
         // It's not a rooter
         //jhipsterFunc.addElementToAdminMenu('ff4j-web-console', 'toggle-on', this.enableTranslation, this.clientFramework);
     },

@@ -37,10 +37,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConditionalOnClass({FF4jDispatcherServlet.class})
 public class FF4jWebConfiguration extends SpringBootServletInitializer {
-
+	
 	@Bean
 	public FF4j getFF4j() {
-		return new FF4j();
+		return new FF4j("ff4j.xml");
 	}
 	
     @Bean
