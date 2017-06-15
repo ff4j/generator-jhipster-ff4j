@@ -202,7 +202,7 @@ module.exports = generator.extend( {
         jhipsterFunc.rewriteFile('webpack/webpack.dev.js', 'jhipster-needle-add-entity-to-webpack', "'/ff4j-web-console',");
         this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Webpack updated`);
         
-        // Add element in the menu
+        // Add Reference the Admin menu
         if (this.clientFramework === 'angular1') {
         	jhipsterFunc.rewriteFile(
             		'src/main/webapp/app/layouts/navbar/navbar.html',
@@ -223,6 +223,7 @@ module.exports = generator.extend( {
                     '  <span>Feature Toggle</span>\n' +
                     ' </a>\n</li>');
         }
+    	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Reference added in the Admin Menu`);
         
         // Is not a function....
         //jhipsterFunc.addEntityToWebpack('ff4j-web-console', this.enableTranslation, this.clientFramework);
