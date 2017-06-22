@@ -12,12 +12,12 @@ const jhipsterVar 	= { moduleName: 'ff4j' };
 // Stores JHipster functions
 const jhipsterFunc 	= {};
 
-//Stores JHipster functions
+// Stores JHipster functions
 const jhipsterUtils = {};
 
 // Constants
 const TPL 					= 'template';
-const FF4J_VERSION  		= '1.6.4';
+const FF4J_VERSION  		= '1.6.5-SNAPSHOT';
 
 // Functions available
 module.exports = generator.extend( {
@@ -55,59 +55,57 @@ module.exports = generator.extend( {
                 name: 'ff4jFeatureStore',
                 message: 'Which database would you like to use to store *Features* ?',
                 choices: [
-                  {name: 'Same as Application', value: 'same'},
-                  {name: 'Cassandra', value: 'cassandra'},
-                  {name: 'ElasticSearch', value: 'elastic'},
-                  {name: 'HazelCast', value: 'hazelCast'},
-                  {name: 'HBase', value: 'hbase'},
-                  {name: 'Ignite', value: 'ignite'},
-                  {name: 'MongoDB', value: 'mongo'},
-                  {name: 'Neo4j', value: 'neo4j'},
-                  {name: 'Redis', value: 'neo4j'},
-                  {name: 'SQL', value: 'sql'},
-                  {name: 'XML', value: 'xml'},
+                  {name: 'Reuse current (' + jhipsterVar.databaseType+ ')', value: jhipsterVar.databaseType},
+                  {name: 'SQL', 			value: 'sql'},
+                  {name: 'Cassandra', 		value: 'cassandra'},
+                  {name: 'MongoDB', 		value: 'mongodb'},                
+                  {name: 'ElasticSearch', 	value: 'elastic'},
+                  {name: 'Redis', 			value: 'redis'},
+                  {name: 'Consul', 			value: 'consul'},
                 ],
-                default: 'same' },/*
-              {
-                  type: 'list',
-                  name: 'ff4jPropertyStore',
-                  message: 'Which database would you like to use to store *Properties* ?',
-                  choices: [
-                    {name: 'Same as Application', value: 'same'},
-                    {name: 'Same as FeatureStore', value: 'featureStore'},
-                    {name: 'Archaius', value: 'cassandra'},
-                    {name: 'Cassandra', value: 'cassandra'},
-                    {name: 'Commons-config', value: 'commonsconf'},
-                    {name: 'Consul', value: 'consul'},
-                    {name: 'ElasticSearch', value: 'elastic'},
-                    {name: 'HazelCast', value: 'hazelCast'},
-                    {name: 'HBase', value: 'hbase'},
-                    {name: 'Ignite', value: 'ignite'},
-                    {name: 'MongoDB', value: 'mongo'},
-                    {name: 'Neo4j', value: 'neo4j'},
-                    {name: 'Redis', value: 'neo4j'},
-                    {name: 'SQL', value: 'sql'},
-                    {name: 'XML', value: 'xml'},
+               default: jhipsterVar.databaseType },
+             {
+                type: 'list',
+                name: 'ff4jPropertyStore',
+                message: 'Which database would you like to use to store *Properties* ?',
+                choices: [
+                  {name: 'Reuse current (' + jhipsterVar.databaseType+ ')', value: jhipsterVar.databaseType},
+                  {name: 'SQL', 			value: 'sql'},
+                  {name: 'Cassandra', 		value: 'cassandra'},
+                  {name: 'MongoDB', 		value: 'mongodb'},                
+                  {name: 'ElasticSearch', 	value: 'elastic'},
+                  {name: 'Redis', 			value: 'redis'},
+                  {name: 'Consul', 			value: 'consul'},
                   ],
-                  default: 'same'
-                },
+                  default: jhipsterVar.databaseType },
+              {
+              	type: 'list',
+                name: 'ff4jEventRepository',
+                message: 'Which database would you like to use to store *AuditTrail* ?',
+                choices: [
+                  {name: 'Reuse current (' + jhipsterVar.databaseType+ ')', value: jhipsterVar.databaseType},
+                  {name: 'SQL', 			value: 'sql'},
+                  {name: 'Cassandra', 		value: 'cassandra'},
+                  {name: 'MongoDB', 		value: 'mongodb'},                
+                  {name: 'ElasticSearch', 	value: 'elastic'},
+                  {name: 'Redis', 			value: 'redis'},
+                ],
+                default: jhipsterVar.databaseType },
                 {
-                    type: 'list',
-                    name: 'ff4jEventRepository',
-                    message: 'Which database would you like to use to store *AuditTrail* ?',
+                  	type: 'list',
+                    name: 'ff4jCache',
+                    message: 'Do you want to enable Caching ?',
                     choices: [
-                      {name: 'Same as Application', value: 'same'},
-                      {name: 'Cassandra', value: 'cassandra'},
-                      {name: 'ElasticSearch', value: 'elastic'},
-                      {name: 'HazelCast', value: 'hazelCast'},
-                      {name: 'HBase', value: 'hbase'},
-                      {name: 'Ignite', value: 'ignite'},
-                      {name: 'MongoDB', value: 'mongo'},
-                      {name: 'Neo4j', value: 'neo4j'},
-                      {name: 'Redis', value: 'neo4j'},
-                      {name: 'SQL', value: 'sql'},
-                    ],
-                    default: 'same' },*/
+                      {name: 'No.', value: 'no'},
+                      {name: 'Reuse current (' + jhipsterVar.hibernateCache + ')', value: jhipsterVar.hibernateCache},
+                      {name: 'Yes with EhCache', 		value: 'ehcache'},
+                      {name: 'Yes with Terracotta', 	value: 'terracotta'},
+                      {name: 'Yes with Ignite', 		value: 'ignite'},                
+                      {name: 'Yes with HazelCast', 		value: 'hazelcast'},
+                      {name: 'Yes with Redis', 		  	value: 'redis'}
+                ],
+                default: 'no' },
+              
         ];
         
         // After prompting, put variables in the context
@@ -122,8 +120,13 @@ module.exports = generator.extend( {
     // -----------------------------------------
     writing() {
     	
-    	this.log(`\n${chalk.bold.green('[jhipster-ff4j]')} - Starting `);
-
+    	// Abort if requested
+    	this.ff4jInstall = this.props.ff4jInstall;
+    	if (!this.ff4jInstall) {
+        	this.log(`\n${chalk.bold.green('[jhipster-ff4j]')} - Aborted`);
+            return;
+        }   
+        
     	this.template = function (source, destination) {
             this.fs.copyTpl(
                 this.templatePath(source),
@@ -137,6 +140,13 @@ module.exports = generator.extend( {
               jhipsterFunc.copyTemplate(file.from, file.to, 
             		  file.type? file.type: TPL, this, file.interpolate? { 'interpolate': file.interpolate } : undefined);
             }, this);
+        };
+        
+        this.isDbRequired = function(dbName) {
+        	return  this.ff4jFeatureStore    === dbName ||  
+        			this.ff4jEventRepository === dbName || 
+        			this.ff4jPropertyStore   === dbName ||
+        			this.ff4jCache			 === dbName;
         };
         
         // Extract core information
@@ -163,13 +173,66 @@ module.exports = generator.extend( {
         this.javaTemplateDir 		= 'src/main/java/package';
         this.message 				= this.props.message;
        
+        // Custom Parameters
+        this.ff4jFeatureStore	 = this.props.ff4jFeatureStore;
+        this.ff4jEventRepository = this.props.ff4jEventRepository;
+        this.ff4jPropertyStore	 = this.props.ff4jPropertyStore;
+        this.ff4jCache			 = this.props.ff4jCache;
+        
+        this.log(`\n${chalk.bold.green('[jhipster-ff4j]')} - Starting `);
+
         // Update Dependencies
         if (jhipsterVar.buildTool === 'maven') {
             this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding dependencies to Maven (pom.xml)`);
+            
             jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-core', 			     FF4J_VERSION);
             jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-web', 				 FF4J_VERSION);
             jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-spring-services', 	 FF4J_VERSION);
             jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-spring-boot-web-api',  FF4J_VERSION);
+            
+            if (this.isDbRequired('sql')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j SQL store dependency to Maven`);
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-springjdbc', FF4J_VERSION);
+            }
+            if (this.isDbRequired('cassandra')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Cassandra store dependency to Maven`);
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-cassandra', FF4J_VERSION);
+            }
+            if (this.isDbRequired('mongodb')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Mongo store dependency to Maven`);
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-mongodb-v3', FF4J_VERSION);
+            }
+            if (this.isDbRequired('elastic')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Elastic store dependency to Maven`);
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-elastic', FF4J_VERSION);
+            }
+            if (this.isDbRequired('hbase')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j HBASE store dependency to Maven`);
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-hbase', FF4J_VERSION);
+            }
+            if (this.isDbRequired('neo4j')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Neo4j store dependency to Maven`);
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-neo4j', FF4J_VERSION);
+            }
+            if (this.isDbRequired('redis')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Redis store dependency to Maven`);
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-redis', FF4J_VERSION);
+            }
+            if (this.isDbRequired('ehcache') || this.isDbRequired('terracotta')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j EhCache store dependency to Maven`);
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-ehcache', FF4J_VERSION);
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-jcache',  FF4J_VERSION);
+            }
+            if (this.isDbRequired('ignite')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Ignite store dependency to Maven`);
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-ignite', FF4J_VERSION);
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-jcache',  FF4J_VERSION);
+            }
+            if (this.isDbRequired('hazelcast')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Ignite store dependency to Maven`);
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-hazelcast', FF4J_VERSION);
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-jcache',  FF4J_VERSION);
+            }
             
         } else if (jhipsterVar.buildTool === 'gradle') {
             this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding dependencies to Gradle`);
@@ -177,13 +240,64 @@ module.exports = generator.extend( {
             jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-web',  			 	 FF4J_VERSION);
             jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-spring-services', 	 FF4J_VERSION);
             jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-spring-boot-web-api', FF4J_VERSION);
+            
+            if (this.isDbRequired('sql')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j SQL store dependency to Maven`);
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-springjdbc', FF4J_VERSION);
+            }
+            if (this.isDbRequired('cassandra')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Cassandra store dependency to Maven`);
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-cassandra', FF4J_VERSION);
+            }
+            if (this.isDbRequired('mongodb')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Mongo store dependency to Maven`);
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-mongodb-v3', FF4J_VERSION);
+            }
+            if (this.isDbRequired('elastic')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Elastic store dependency to Maven`);
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-elastic', FF4J_VERSION);
+            }
+            if (this.isDbRequired('hbase')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j HBASE store dependency to Maven`);
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-hbase', FF4J_VERSION);
+            }
+            if (this.isDbRequired('neo4j')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Neo4j store dependency to Maven`);
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-neo4j', FF4J_VERSION);
+            }
+            if (this.isDbRequired('redis')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Redis store dependency to Maven`);
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-redis', FF4J_VERSION);
+            }
+            if (this.isDbRequired('ehcache') || this.isDbRequired('terracotta')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j EhCache store dependency to Maven`);
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-ehcache', FF4J_VERSION);
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-jcache',  FF4J_VERSION);
+            }
+            if (this.isDbRequired('ignite')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Ignite store dependency to Maven`);
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-ignite', FF4J_VERSION);
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-jcache',  FF4J_VERSION);
+            }
+            if (this.isDbRequired('hazelcast')) {
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Adding ff4j Ignite store dependency to Maven`);
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-hazelcast', FF4J_VERSION);
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-jcache',  FF4J_VERSION);
+            }
         }
         
         // Copy Files (Java)
         files = [
-            { from: this.javaTemplateDir + '/config/ff4j/_FF4jWebConfiguration.java',  to: this.javaDir + 'config/ff4j/FF4jWebConfiguration.java'},
-            { from: this.javaTemplateDir + '/config/_SecurityCsrfRequestMatcher.java', to: this.javaDir + 'config/SecurityCsrfRequestMatcher.java'},
-            { from: 'src/main/resources/ff4j.xml', to: this.resourceDir + 'ff4j.xml'}
+            { from: this.javaTemplateDir + '/config/_FF4jWebConfiguration.java',  
+            	to: this.javaDir + 'config/FF4jWebConfiguration.java'},
+            { from: this.javaTemplateDir + '/config/ff4j/_JHipsterAuthorizationManager.java',  
+            	to: this.javaDir + 'config/ff4j/JHipsterAuthorizationManager.java'},
+            { from: this.javaTemplateDir + '/config/ff4j/_JHipsterEventRepository.java',  
+            	to: this.javaDir + 'config/ff4j/JHipsterEventRepository.java'},
+            { from: this.javaTemplateDir + '/config/_SecurityCsrfRequestMatcher.java', 
+            	to: this.javaDir + 'config/SecurityCsrfRequestMatcher.java'},
+            { from: 'src/main/resources/ff4j.xml', 
+            	to: this.resourceDir + 'ff4j.xml'}
           ];
         this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Importing templates`);
         this.copyFiles(files);
@@ -225,17 +339,18 @@ module.exports = generator.extend( {
     			' .authorizeRequests()', 
     			' .authorizeRequests()\n            .antMatchers("/ff4j-web-console/**").hasAuthority(AuthoritiesConstants.ADMIN)');
         
-    	// ----- KO ----
-    	
-    	// Should no be open 
-    	//jhipsterFunc.replaceContent(this.javaDir + 'config/SecurityConfiguration.java', 
-    	//		' .antMatchers("/app/**/*.{js,html}")', 
-    	//		' .antMatchers("/app/**/*.{js,html}")\n            .antMatchers("/ff4j-web-console/**")');
-    	
-        // Is not a function....
-        //jhipsterFunc.addEntityToWebpack('ff4j-web-console', this.enableTranslation, this.clientFramework);
-        // It's not a rooter
-        //jhipsterFunc.addElementToAdminMenu('ff4j-web-console', 'toggle-on', this.enableTranslation, this.clientFramework);
+    	// Update application.yml based on configuration of FF4J
+    	let ff4jConfig = '\n# ===================================================================\n';
+    	ff4jConfig+='# FF4j specific properties\n';
+    	ff4jConfig+='# ===================================================================\n';
+    	ff4jConfig+='ff4j:\n';
+    	ff4jConfig+='   core:\n';
+    	ff4jConfig+='      autocreate: true\n';
+    	ff4jConfig+='   audit:\n';
+    	ff4jConfig+='      enabled: true\n';
+    	ff4jConfig+='      log2jhispter: true\n';
+    	jhipsterFunc.rewriteFile(
+    			'src/main/resources/config/application.yml', 'application:', ff4jConfig);
     },
     
 
@@ -266,7 +381,9 @@ module.exports = generator.extend( {
     },
 
     end() {
-        this.log('End of ff4j generator');
+    	if (this.ff4jInstall) {
+    		this.log('End of ff4j generator');
+    	}
     }
 });
 

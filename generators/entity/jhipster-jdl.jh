@@ -1,0 +1,106 @@
+
+// --- Features ---
+
+entity FF4jFeature {
+   uid String required,
+   description String,
+   enable Boolean,
+   group String,
+}
+
+entity FF4jRole {
+	name String required
+}
+
+entity FF4jFixedValue {
+	name String required
+}
+
+entity FF4jFlippingStrategy {
+	className String required
+}
+
+entity FF4jCustomProperty {
+   uid 			String required,
+   description 	String,
+   className 	String required,
+   currentValue String required   
+}
+
+entity FF4jInitParam {
+   uid 			String required, 
+   currentValue String required,  
+}
+
+relationship OneToMany {
+	FF4jFeature{roles} to FF4jRole
+}
+
+relationship OneToMany {
+	FF4jFeature{customProperties} to FF4jCustomProperty
+}
+
+relationship OneToOne {
+	FF4jFeature{flippingStrategy} to FF4jFlippingStrategy
+}
+
+relationship OneToMany {
+	FF4jFlippingStrategy{initParams} to FF4jInitParam
+}
+
+// --- Properties ---
+
+entity FF4jProperty {
+   uid 			String required,
+   description 	String,
+   className 	String required,
+   currentValue String required   
+}
+
+relationship OneToMany {
+	FF4jProperty{fixedValues} to FF4jFixedValue
+}
+
+relationship OneToMany {
+	FF4jCustomProperty{fixedValues} to FF4jFixedValue
+}
+
+// --- Audit ---
+
+enum EventSource {  FRENCH, ENGLISH, SPANISH }
+enum EventType   {  FRENCH, ENGLISH, SPANISH }
+enum EventAction {  A, B, C }
+
+entity FF4jEvent {
+	uid  String required,
+	time ZonedDateTime required,
+    duration Integer,
+    name String,
+    value String,
+    type EventType,
+    source EventSource,
+    action EventAction,
+    hostname String,
+    user String
+}
+
+entity FF4jEventKey {
+	key String required,
+    value String
+}
+
+relationship OneToMany {
+	FF4jEvent{keys} to FF4jEventKey
+}
+
+// Set pagination options
+paginate FF4jFeature, FF4jProperty with infinite-scroll
+paginate FF4jEvent with pagination
+
+dto * with mapstruct
+
+// Set service options to all except few
+service all with serviceImpl except Employee, Job
+
+// Set an angular suffix
+angularSuffix * with mySuffix
