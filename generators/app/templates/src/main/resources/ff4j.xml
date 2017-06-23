@@ -23,14 +23,15 @@
 	 xsi:schemaLocation="http://www.ff4j.org/schema/ff4j ../../main/resources/ff4j-1.4.0.xsd">
 	
 	<features>
-		<feature uid="AwesomeFeature" enable="true" description="some desc" />
+		
+		<feature uid="ttc" enable="true" description="This feature is used in MySampleFF4jService"/>
+		
+		<feature uid="zFeatureSimple" enable="true" />
 	
-		<feature uid="first" enable="true" description="description" >
-			
+		<feature uid="zFeatureSecured" enable="true" description="description" >
 			<security>
-				<role name="USER" />
+				<role name="ROLE_USER" />
 			</security>
-			
 			<custom-properties>
 			  <property name="ppint" 	  type="org.ff4j.property.PropertyInt" value="12"   />
 			  <property name="ppdouble"   type="double"  value="12.5" />
@@ -58,7 +59,7 @@
 		</feature>
 		
 		<feature-group name="GRP0">
-			<feature uid="second" enable="false" description="description" >
+			<feature uid="zFeatureInGroup" enable="false" description="description" >
 				<security>
 					<role name="USER" />
 				</security>
@@ -66,7 +67,7 @@
 		</feature-group>
 		
 		<feature-group name="GRP1">
-			<feature uid="forth" enable="true" description="description" >
+			<feature uid="zFeatureWithStrategy" enable="true" description="description" >
 				<flipstrategy class="org.ff4j.strategy.el.ExpressionFlipStrategy">
 					<param name="expression" value="third | second" />
 				</flipstrategy>
@@ -86,29 +87,19 @@
 	</features>
 	
 	<properties>	
-	
-	 <property name="a" value="AMER" >
+	  <property name="tvaRate" value="20" type="double" />
+	  <property name="zPropertyWithFixedValues" value="AMER" >
 	 	<fixedValues>
 	 		<value>AMER</value>
 	 		<value>EAST</value>
 	 		<value>EAST</value>
 	 		<value>EAST</value>
 	 	</fixedValues>
-	 </property>
-	 
-	 <property name="b" 	  value="12"   />
-	
-	 <property name="c"   value="12.5" />
-	
-	 <property name="d"  value="true" />
-	
-	 <property name="e"   value="hello" />
-	
-	 <property name="f"  value="12,13,14" />
-	
-	 <property name="g" value="DEBUG" type="org.ff4j.property.PropertyLogLevel" />
-
+	  </property>
+	  <property name="zPropertyDouble"   type="double"  value="12.5" />
+	  <property name="zPropertyBoolean"  type="boolean" value="true" />
+	  <property name="zPropertyString"   value="hello" />
+	  <property name="zPropertyLog" value="DEBUG" type="org.ff4j.property.PropertyLogLevel" />
 	</properties>
-	
 	
 </ff4j>

@@ -39,7 +39,6 @@ import <%=packageName%>.service.UserService;
 import <%=packageName%>.config.ff4j.JHipsterAuthorizationManager;
 import <%=packageName%>.config.ff4j.JHipsterEventRepository;
 
-
 <%_ if (ff4jFeatureStore === 'sql') { _%>
 import org.ff4j.springjdbc.store.FeatureStoreSpringJdbc;<% } %>
 <%_ if (ff4jPropertyStore === 'sql') { _%>
@@ -49,6 +48,16 @@ import org.ff4j.springjdbc.store.EventRepositorySpringJdbc;<% } %>
 <%_ if (ff4jFeatureStore === 'sql' || ff4jEventRepository === 'sql' || ff4jPropertyStore ==='sql') { _%>
 import com.zaxxer.hikari.HikariDataSource;<% } %>
 
+<%_ if (ff4jFeatureStore === 'mongodb') { _%>
+import org.ff4j.mongo.store.FeatureStoreMongo;<% } %>
+<%_ if (ff4jPropertyStore === 'mongodb') { _%>
+import org.ff4j.mongo.store.PropertyStoreMongo;<% } %>
+<%_ if (ff4jEventRepository === 'mongodb') { _%>
+import org.ff4j.mongo.store.EventRepositoryMongo;<% } %>
+<%_ if (ff4jFeatureStore === 'mongodb' || ff4jEventRepository === 'mongodb' || ff4jPropertyStore ==='mongodb') { _%>
+import org.springframework.boot.autoconfigure.mongo.MongoProperties;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;<% } %>
 
 /**
  * Configuration of FF4J (ff4j.org) to work with JHipster
@@ -56,16 +65,16 @@ import com.zaxxer.hikari.HikariDataSource;<% } %>
  * @author Clunven (@clunven)
  */
 @Configuration
-@ComponentScan(basePackages={"org.ff4j.spring.boot.web.api.resources", "org.ff4j.services"})
-//@ComponentScan({"org.ff4j.spring.boot.web.api", "org.ff4j.services", "org.ff4j.aop", "org.ff4j.spring"})
+@ComponentScan(basePackages={"org.ff4j.spring.boot.web.api.resources", "org.ff4j.services", "org.ff4j.aop"})
 @AutoConfigureBefore(value = { WebConfigurer.class, DatabaseConfiguration.class })
-public class FF4jWebConfiguration extends SpringBootServletInitializer {
+public class FF4jConfiguration extends SpringBootServletInitializer {
 	
 	/** Default URL. */
 	public static final String FF4J_WEBCONSOLE_URL  = "ff4j-web-console";
 	
 	/** logging. */
-	private final Logger log = LoggerFactory.getLogger(FF4jWebConfiguration.class);
+	private final Logger log = LoggerFactory.getLogger(FF4jConfiguration.class);
+	
 	/** User services of Jhispter to be used in FF4j. */
 	private final UserService userServices;
 	
@@ -87,7 +96,7 @@ public class FF4jWebConfiguration extends SpringBootServletInitializer {
 	 * @param jHipsterProperties
 	 * 		settings
 	 */
-    public FF4jWebConfiguration(UserService user, AuditEventRepository audit) {
+    public FF4jConfiguration(UserService user, AuditEventRepository audit) {
         this.userServices 		= user;
         this.auditServices		= audit;
     }
@@ -112,8 +121,8 @@ public class FF4jWebConfiguration extends SpringBootServletInitializer {
         ff4j.setFeatureStore(new FeatureStoreConsul(getConsulConnection()));
 		log.info("Features are stored in Consul.");
 <% } else if (ff4jFeatureStore === 'mongodb') { _%>
-        ff4j.setFeatureStore(new FeatureStoreMongo(mongoDataBase));
-		log.info("Features are stored in MongoDB.");
+		log.info("Features are stored in MongoDB dbName=[" + mongoDataBase.getName() + "]");
+		ff4j.setFeatureStore(new FeatureStoreMongo(mongoClient, mongoDataBase.getName()));
 <% } else if (ff4jFeatureStore === 'cassandra') { _%>
         ff4j.setFeatureStore(new FeatureStoreCassandra(getCassandraConnection()));
 		log.info("Features are store in Cassandra.");
@@ -132,7 +141,7 @@ public class FF4jWebConfiguration extends SpringBootServletInitializer {
         ff4j.setPropertiesStore(new PropertyStoreConsul(getConsulConnection()));
         log.info("Properties are stored in Consul.");
 <% } else if (ff4jPropertyStore === 'mongodb') { _%>
-        ff4j.setPropertiesStore(new PropertyStoreMongo(mongoDataBase));
+        ff4j.setPropertiesStore(new PropertyStoreMongo(mongoClient, mongoDataBase.getName()));
         log.info("Properties are stored in MongoDB.");
 <% } else if (ff4jPropertyStore === 'cassandra') { _%>
         ff4j.setPropertiesStore(new PropertyStoreCassandra(getCassandraConnection()));
@@ -149,7 +158,7 @@ public class FF4jWebConfiguration extends SpringBootServletInitializer {
        ff4j.setEventRepository(new EventRepositoryRedis(getRedisConnection()));
        log.info("AuditEvents are stored in Redis.");
 <% } else if (ff4jPropertyStore === 'mongodb') { _%>
-       ff4j.setEventRepository(new EventRepositoryMongo(mongoDataBase));
+       ff4j.setEventRepository(new EventRepositoryMongo(mongoClient, mongoDataBase.getName()));
        log.info("AuditEvents are stored in MongoDB.");
 <% } else if (ff4jEventRepository === 'cassandra') { _%>
        ff4j.setEventRepository(new EventRepositoryCassandra(getCassandraConnection()));
@@ -187,9 +196,7 @@ public class FF4jWebConfiguration extends SpringBootServletInitializer {
 	@Autowired(required = false)
 	public void setHikariDataSource(HikariDataSource hikariDataSource) {
 		this.hikariDataSource = hikariDataSource;
-	}
-<% } %>
-
+	}<% } %>
 <%_ if (ff4jFeatureStore === 'cassandra' || ff4jPropertyStore ==='cassandra' || ff4jEventRepository === 'cassandra') { _%>
     //-------- Cassandra ---------
 
@@ -204,22 +211,14 @@ public class FF4jWebConfiguration extends SpringBootServletInitializer {
     @Bean
     public CassandraConnection getCassandraConnection() {
 	    return new CassandraConnection(cluster);
-    }
-<% } %>
-
+    }<% } %>
 <%_ if (ff4jFeatureStore === 'mongodb' || ff4jPropertyStore ==='mongodb' || ff4jEventRepository === 'mongodb') { _%>
     //-------- MongoDB ---------
-    
+    @Autowired
 	private MongoDatabase mongoDataBase;
-	
-    @Bean
-    public MongoDatabase getDataBase(MongoClient mongoClient, MongoProperties mongoProperties) {
-       this.mongoDataBase =  mongoClient.getDatabase(mongoProperties.getDatabase());
-       return mongoDataBase;
-    }
-    
-<% } %>
 
+    @Autowired
+    private MongoClient mongoClient;<% } %>
 <%_ if (ff4jFeatureStore === 'elastic' || ff4jEventRepository === 'elastic' || ff4jPropertyStore ==='elastic') { _%>
      //--------- Elastic ---------
 
@@ -243,8 +242,6 @@ public class FF4jWebConfiguration extends SpringBootServletInitializer {
  		}
  	 }
 <% } %>
-
-
 <%_ if (ff4jFeatureStore === 'redis' || ff4jEventRepository === 'redis' || ff4jPropertyStore ==='redis') { _%>
      // --------- Redis ---------
 

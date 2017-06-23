@@ -8,46 +8,6 @@ entity FF4jFeature {
    group String,
 }
 
-entity FF4jRole {
-	name String required
-}
-
-entity FF4jFixedValue {
-	name String required
-}
-
-entity FF4jFlippingStrategy {
-	className String required
-}
-
-entity FF4jCustomProperty {
-   uid 			String required,
-   description 	String,
-   className 	String required,
-   currentValue String required   
-}
-
-entity FF4jInitParam {
-   uid 			String required, 
-   currentValue String required,  
-}
-
-relationship OneToMany {
-	FF4jFeature{roles} to FF4jRole
-}
-
-relationship OneToMany {
-	FF4jFeature{customProperties} to FF4jCustomProperty
-}
-
-relationship OneToOne {
-	FF4jFeature{flippingStrategy} to FF4jFlippingStrategy
-}
-
-relationship OneToMany {
-	FF4jFlippingStrategy{initParams} to FF4jInitParam
-}
-
 // --- Properties ---
 
 entity FF4jProperty {
@@ -57,19 +17,11 @@ entity FF4jProperty {
    currentValue String required   
 }
 
-relationship OneToMany {
-	FF4jProperty{fixedValues} to FF4jFixedValue
-}
-
-relationship OneToMany {
-	FF4jCustomProperty{fixedValues} to FF4jFixedValue
-}
-
 // --- Audit ---
 
-enum EventSource {  FRENCH, ENGLISH, SPANISH }
-enum EventType   {  FRENCH, ENGLISH, SPANISH }
-enum EventAction {  A, B, C }
+enum EventSource {  JAVAAPI, WEB, CLI, JMX }
+enum EventType   {  FEATURES, PROPERTIES, ADMINISTRATION }
+enum EventAction {  TOGGLE_ON, TOGGLE_OFF, CREATE, DELETE, UPDATE, HIT }
 
 entity FF4jEvent {
 	uid  String required,
@@ -82,15 +34,6 @@ entity FF4jEvent {
     action EventAction,
     hostname String,
     user String
-}
-
-entity FF4jEventKey {
-	key String required,
-    value String
-}
-
-relationship OneToMany {
-	FF4jEvent{keys} to FF4jEventKey
 }
 
 // Set pagination options

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <property name="now" value="now()" dbms="mysql,h2"/>
+    <property name="now" value="current_timestamp" dbms="postgresql"/>
+    <property name="now" value="sysdate" dbms="oracle"/>
+    <property name="now" value="GETDATE()" dbms="mssql"/>
+    <property name="autoIncrement" value="true" dbms="mysql,h2,postgresql,oracle,mssql"/>
+    <property name="floatType" value="float4" dbms="postgresql, h2"/>
+    <property name="floatType" value="float"  dbms="mysql, oracle, mssql"/>
+  
+    <changeSet id="createtable-features" author="jhipster">
+        <comment>Create table for ff4j from generator jhispter</comment>
+        <createTable tableName="FF4J_FEATURES">
+            <column name="FEAT_UID" type="varchar(100)" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="ENABLE" type="integer">
+                <constraints nullable="false" />
+            </column>
+            <column name="DESCRIPTION" type="varchar(1000)">
+                <constraints nullable="true" />
+            </column>
+            <column name="STRATEGY" type="varchar(1000)">
+                <constraints nullable="true" />
+            </column>
+            <column name="EXPRESSION" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+             <column name="GROUPNAME" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+        <dropDefaultValue tableName="FF4J_FEATURES" columnName="modified_date" columnDataType="datetime"/>
+    </changeSet>
+    
+
+    <changeSet id="createtable-roles" author="jhipster">
+    	<comment>Create table for ff4j from generator jhispter</comment>
+    	<createTable tableName="FF4J_ROLES">
+            <column name="FEAT_UID" type="varchar(100)" >
+                <constraints primaryKey="true" nullable="false" 
+                			 foreignKeyName="fk_features_roles" 
+                			 references="FF4J_FEATURES(FEAT_UID)" />
+            </column>
+            <column name="ROLE_NAME" type="varchar(100)" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    
+    <changeSet id="createtable-customproperties" author="jhipster">
+    	<comment>Create table for ff4j from generator jhispter</comment>
+    	<createTable tableName="FF4J_CUSTOM_PROPERTIES">
+    		<column name="PROPERTY_ID" type="varchar(100)" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+    		<column name="FEAT_UID" type="varchar(100)" >
+                <constraints primaryKey="true"
+                			 nullable="false" 
+                			 foreignKeyName="fk_features_properties" 
+                			 references="FF4J_FEATURES(FEAT_UID)" />
+            </column>
+            <column name="CLAZZ" type="varchar(255)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="CURRENTVALUE" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+             <column name="FIXEDVALUES" type="varchar(1000)">
+                <constraints nullable="true" />
+            </column>
+             <column name="DESCRIPTION" type="varchar(1000)">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+    </changeSet>
+    
+    <changeSet id="createtable-properties" author="jhipster">
+    	<comment>Create table for ff4j from generator jhispter</comment>
+    	<createTable tableName="FF4J_PROPERTIES">
+    		<column name="PROPERTY_ID" type="varchar(100)" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+    		<column name="CLAZZ" type="varchar(255)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="CURRENTVALUE" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+             <column name="FIXEDVALUES" type="varchar(1000)">
+                <constraints nullable="true" />
+            </column>
+             <column name="DESCRIPTION" type="varchar(1000)">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+    </changeSet>
+    
+     <changeSet id="createtable-audit" author="jhipster">
+    	<comment>Create table for ff4j from generator jhispter</comment>
+    	<createTable tableName="FF4J_AUDIT">
+    		<column name="EVT_UUID" type="varchar(40)" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="EVT_TIME" type="timestamp" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+    		<column name="EVT_TYPE" type="varchar(30)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="EVT_NAME" type="varchar(30)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="EVT_ACTION" type="varchar(30)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="EVT_HOSTNAME" type="varchar(100)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="EVT_SOURCE" type="varchar(30)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="EVT_DURATION" type="integer" >
+                <constraints nullable="true"/>
+            </column>
+            <column name="EVT_USER" type="varchar(30)" >
+                <constraints nullable="true"/>
+            </column>
+            <column name="EVT_VALUE" type="varchar(100)" >
+                <constraints nullable="true"/>
+            </column>
+            <column name="EVT_KEYS" type="varchar(255)" >
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    
+	
+</databaseChangeLog>

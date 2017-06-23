@@ -52,7 +52,12 @@ public class JHipsterEventRepository extends AbstractEventRepository {
 	 * 		audit event
 	 */
 	public static AuditEvent mapEvent2AuditEvent(Event e) {
-		String principal = e.getUser() != null ? e.getUser() : SecurityUtils.getCurrentUserLogin();
+		String principal = "ANONYMOUS";
+		if (e.getUser() != null) {
+			principal = e.getUser();
+		} else if (SecurityUtils.getCurrentUserLogin() != null ) {
+			principal = SecurityUtils.getCurrentUserLogin();
+		}
 		String type 	 = e.getAction().toUpperCase() + " " + e.getType().toUpperCase() + " " + e.getName();
 		Map < String, Object> extraKeys = new HashMap<>();
 		extraKeys.put(EventConstants.ATTRIBUTE_HOST, e.getHostName());
