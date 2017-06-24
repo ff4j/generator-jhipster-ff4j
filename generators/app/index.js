@@ -16,7 +16,7 @@ const jhipsterUtils = {};
 
 // Constants
 const TPL 					= 'template';
-const FF4J_VERSION  		= '1.6.5-SNAPSHOT';
+const FF4J_VERSION  		= '1.6.5';
 
 // Functions available
 module.exports = generator.extend( {
