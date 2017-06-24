@@ -33,7 +33,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
 
-import <%=packageName%>.config.DatabaseConfiguration;
+<%_ if (databaseType === 'sql' || databaseType === 'mongodb') { _%>
+import <%=packageName%>.config.DatabaseConfiguration;<% } %>
+
 import <%=packageName%>.config.WebConfigurer;
 import <%=packageName%>.service.UserService;
 import <%=packageName%>.config.ff4j.JHipsterAuthorizationManager;
@@ -59,6 +61,16 @@ import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;<% } %>
 
+<%_ if (ff4jFeatureStore === 'cassandra') { _%>
+import org.ff4j.cassandra.store.FeatureStoreCassandra;<% } %>
+<%_ if (ff4jPropertyStore === 'cassandra') { _%>
+import org.ff4j.cassandra.store.PropertyStoreCassandra;<% } %>
+<%_ if (ff4jEventRepository === 'cassandra') { _%>
+import org.ff4j.cassandra.store.EventRepositoryCassandra;<% } %>
+<%_ if (ff4jFeatureStore === 'cassandra' || ff4jEventRepository === 'cassandra' || ff4jPropertyStore ==='cassandra') { _%>
+import com.datastax.driver.core.Cluster;
+import org.ff4j.cassandra.CassandraConnection;<% } %>
+
 /**
  * Configuration of FF4J (ff4j.org) to work with JHipster
  *
@@ -66,7 +78,7 @@ import com.mongodb.client.MongoDatabase;<% } %>
  */
 @Configuration
 @ComponentScan(basePackages={"org.ff4j.spring.boot.web.api.resources", "org.ff4j.services", "org.ff4j.aop"})
-@AutoConfigureBefore(value = { WebConfigurer.class, DatabaseConfiguration.class })
+@AutoConfigureBefore(value = { WebConfigurer.class<%_ if (databaseType === 'sql' || databaseType === 'mongodb') { _%>, DatabaseConfiguration.class <% } %>})
 public class FF4jConfiguration extends SpringBootServletInitializer {
 	
 	/** Default URL. */
@@ -201,7 +213,7 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
     //-------- Cassandra ---------
 
     // Datastax Cassandra driver
-    private Cluster cluster;
+	private Cluster cluster;
 
     @Autowired(required = false)
     public void setClusterCassandra(Cluster cluster) {

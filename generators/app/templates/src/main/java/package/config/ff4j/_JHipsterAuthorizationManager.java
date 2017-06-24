@@ -58,7 +58,10 @@ public class JHipsterAuthorizationManager extends AbstractAuthorizationManager {
 	/** {@inheritDoc} */
 	@Override
 	public Set<String> listAllPermissions() {
-		return new HashSet<>(userService.getAuthorities());
+		<%_ if (databaseType === 'sql' || databaseType === 'mongodb') { _%>
+		return new HashSet<>(userService.getAuthorities());<% } %>
+		<%_ if (databaseType === 'cassandra') { _%>
+		return userService.getUserWithAuthorities().getAuthorities();<% } %>
 	}
 	
 }
