@@ -1,11 +1,15 @@
 # generator-jhipster-ff4j
-[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
-> JHipster module, A Jhipster module to integrate FeatureToggle capability in your application using FF4j (Feature Flipping for Java)
+[![NPM version][npm-image]][npm-url] 
+[![Dependency Status][daviddm-image]][daviddm-url]
+JHipster module, A Jhipster module to integrate FeatureToggle capability in your application using FF4j (Feature Flipping for Java)
+
+| JHIPSTER        | +           | FF4J  |
+| ------------- |:-------------:| -----:|
+| <img src="https://jhipster.github.io/images/logo/logo-jhipster-drink-coffee.png" height="120px" />      |  | <img src="http://ff4j.org/images/ff4j.png" height="120px" /> |
+
+ + 
 
 
-<img src="http://ff4j.org/images/ff4j.png" height="120px" /> + 
-
-<img src="https://jhipster.github.io/images/logo/logo-jhipster-drink-coffee.png" height="120px" />
 
 
 ## Introduction
