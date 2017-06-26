@@ -16,7 +16,7 @@ const jhipsterUtils = {};
 
 // Constants
 const TPL 					= 'template';
-const FF4J_VERSION  		= '1.6.5';
+const FF4J_VERSION  		= '1.6.5 ';
 
 // Functions available
 module.exports = generator.extend( {
@@ -168,6 +168,7 @@ module.exports = generator.extend( {
         this.databaseType			= jhipsterVar.databaseType;
         this.devDatabaseType		= jhipsterVar.devDatabaseType;
         this.prodDatabaseType		= jhipsterVar.prodDatabaseType;
+        this.authenticationType		= jhipsterVar.authenticationType;
         
         // Path Config
         const javaDir 				= jhipsterVar.javaDir;
@@ -367,10 +368,18 @@ module.exports = generator.extend( {
     	jhipsterFunc.replaceContent(this.javaDir + 'config/SecurityConfiguration.java', 
     			'.csrf()', 
     			'.csrf().requireCsrfProtectionMatcher(new SecurityCsrfRequestMatcher())');
+    	
     	// Secured access to the servlet
-    	jhipsterFunc.replaceContent(this.javaDir + 'config/SecurityConfiguration.java', 
-    			' .authorizeRequests()', 
-    			' .authorizeRequests()\n.antMatchers("/ff4j-web-console/**").hasAuthority('+  this.packageName + '.security.AuthoritiesConstants.ADMIN)');
+    	if (this.authenticationType === 'jwt' || this.authenticationType === 'oauth2') {
+    		// TODO : to change, cannot override the filters (jwt, oauth2) to authorize the console
+    		jhipsterFunc.replaceContent(this.javaDir + 'config/SecurityConfiguration.java', 
+        			' .authorizeRequests()', 
+        			' .authorizeRequests()\n            .antMatchers("/ff4j-web-console/**").permitAll()');
+    	} else {
+    		jhipsterFunc.replaceContent(this.javaDir + 'config/SecurityConfiguration.java', 
+	    			' .authorizeRequests()', 
+	    			' .authorizeRequests()\n            .antMatchers("/ff4j-web-console/**").hasAuthority('+  this.packageName + '.security.AuthoritiesConstants.ADMIN)');
+    	}
         
     	// Update application.yml based on configuration of FF4J
     	let ff4jConfig = '\n# ===================================================================\n';

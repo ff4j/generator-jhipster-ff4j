@@ -12,7 +12,7 @@
     <property name="floatType" value="float4" dbms="postgresql, h2"/>
     <property name="floatType" value="float"  dbms="mysql, oracle, mssql"/>
   
-    <changeSet id="createtable-features" author="jhipster">
+    <changeSet id="00000000000020" author="jhipster">
         <comment>Create table for ff4j from generator jhispter</comment>
         <createTable tableName="FF4J_FEATURES">
             <column name="FEAT_UID" type="varchar(100)" >
@@ -34,11 +34,10 @@
                 <constraints nullable="true" />
             </column>
         </createTable>
-        <dropDefaultValue tableName="FF4J_FEATURES" columnName="modified_date" columnDataType="datetime"/>
     </changeSet>
     
 
-    <changeSet id="createtable-roles" author="jhipster">
+    <changeSet id="00000000000021" author="jhipster">
     	<comment>Create table for ff4j from generator jhispter</comment>
     	<createTable tableName="FF4J_ROLES">
             <column name="FEAT_UID" type="varchar(100)" >
@@ -52,7 +51,7 @@
         </createTable>
     </changeSet>
     
-    <changeSet id="createtable-customproperties" author="jhipster">
+    <changeSet id="00000000000022" author="jhipster">
     	<comment>Create table for ff4j from generator jhispter</comment>
     	<createTable tableName="FF4J_CUSTOM_PROPERTIES">
     		<column name="PROPERTY_ID" type="varchar(100)" >
@@ -79,7 +78,7 @@
         </createTable>
     </changeSet>
     
-    <changeSet id="createtable-properties" author="jhipster">
+    <changeSet id="00000000000023" author="jhipster">
     	<comment>Create table for ff4j from generator jhispter</comment>
     	<createTable tableName="FF4J_PROPERTIES">
     		<column name="PROPERTY_ID" type="varchar(100)" >
@@ -100,7 +99,7 @@
         </createTable>
     </changeSet>
     
-     <changeSet id="createtable-audit" author="jhipster">
+     <changeSet id="00000000000024" author="jhipster">
     	<comment>Create table for ff4j from generator jhispter</comment>
     	<createTable tableName="FF4J_AUDIT">
     		<column name="EVT_UUID" type="varchar(40)" >
@@ -138,6 +137,5 @@
             </column>
         </createTable>
     </changeSet>
-    
 	
 </databaseChangeLog>
