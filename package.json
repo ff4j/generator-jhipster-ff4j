@@ -1,6 +1,6 @@
 {
   "name": "generator-jhipster-ff4j",
-  "version": "1.6.6",
+  "version": "1.6.7",
   "description": "A Jhipster module to integrate FeatureToggle capability in your application using FF4j (Feature Flipping for Java)",
   "keywords": [
     "yeoman-generator",
