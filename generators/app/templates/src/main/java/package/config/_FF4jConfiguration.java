@@ -69,6 +69,26 @@ import org.ff4j.cassandra.store.EventRepositoryCassandra;<% } %>
 import com.datastax.driver.core.Cluster;
 import org.ff4j.cassandra.CassandraConnection;<% } %>
 
+<%_ if (ff4jFeatureStore === 'redis') { _%>
+import org.ff4j.store.FeatureStoreRedis;<% } %>
+<%_ if (ff4jPropertyStore === 'redis') { _%>
+import org.ff4j.store.PropertyStoreRedis;<% } %>
+<%_ if (ff4jEventRepository === 'redis') { _%>
+import org.ff4j.store.EventRepositoryRedis;<% } %>
+<%_ if (ff4jFeatureStore === 'redis' || ff4jEventRepository === 'redis' || ff4jPropertyStore ==='redis') { _%>
+import org.ff4j.utils.Util;
+import org.ff4j.redis.RedisConnection;<% } %>
+
+<%_ if (ff4jFeatureStore === 'consul') { _%>
+import org.ff4j.consul.store.FeatureStoreConsul;<% } %>
+<%_ if (ff4jPropertyStore === 'consul') { _%>
+import org.ff4j.consul.store.PropertyStoreConsul;<% } %>
+<%_ if (ff4jFeatureStore === 'consul' || ff4jPropertyStore ==='consul') { _%>
+import com.orbitz.consul.Consul;
+import com.google.common.net.HostAndPort;
+import org.ff4j.consul.ConsulConnection;
+<% } %>
+
 /**
  * Configuration of FF4J (ff4j.org) to work with JHipster
  *
@@ -266,16 +286,17 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
 
      @Bean
      public RedisConnection getRedisConnection() {
-	    return Util.hasLength(redisPassword) ?
-		  new RedisConnection(redisHostName, redisPort, redisPassword) : 
-		  new RedisConnection(redisHostName, redisPort); 
+	    if (Util.hasLength(redisPassword)) {
+		  return new RedisConnection(redisHostName, redisPort, redisPassword);
+		}
+		return new RedisConnection(redisHostName, redisPort); 
      }
 <% } %>
 
 <%_ if (ff4jFeatureStore === 'consul' || ff4jPropertyStore ==='consul') { _%>
     // --------- Consul ---------
 
-    @Value("${ff4j.consul.host}")
+    @Value("${ff4j.consul.hostname}")
     private String consulHost;
 
     @Value("${ff4j.consul.port}")

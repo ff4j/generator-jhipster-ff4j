@@ -232,6 +232,10 @@ module.exports = generator.extend( {
             	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-redis', FF4J_VERSION);
             	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Add dependency [ff4j-store-redis] (maven)`);
             }
+            if (this.isDbRequired('consul')) {
+            	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-consul', FF4J_VERSION);
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Add dependency [ff4j-store-consul] (maven)`);
+            }
             if (this.isDbRequired('ehcache') || this.isDbRequired('terracotta')) {
             	jhipsterFunc.addMavenDependency('org.ff4j', 'ff4j-store-ehcache', FF4J_VERSION);
             	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Add dependency [ff4j-store-ehcache] (maven)`);
@@ -293,6 +297,10 @@ module.exports = generator.extend( {
             if (this.isDbRequired('redis')) {
             	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-redis', FF4J_VERSION);
             	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Add dependency [ff4j-store-redis] (gradle)`);
+            }
+            if (this.isDbRequired('consul')) {
+            	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-consul', FF4J_VERSION);
+            	this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Add dependency [ff4j-store-consul] (gradle)`);
             }
             if (this.isDbRequired('ehcache') || this.isDbRequired('terracotta')) {
             	jhipsterFunc.addGradleDependency('org.ff4j', 'ff4j-store-ehcache', FF4J_VERSION);
@@ -411,6 +419,7 @@ module.exports = generator.extend( {
     		ff4jConfig+='   redis:\n';
         	ff4jConfig+='      hostname: localhost\n';
         	ff4jConfig+='      port: 6379\n';
+        	ff4jConfig+='      password:\n';
     	}
     	if (this.isDbRequired('consul')) {
     		ff4jConfig+='   consul:\n';
