@@ -57,9 +57,7 @@ import org.ff4j.mongo.store.PropertyStoreMongo;<% } %>
 <%_ if (ff4jEventRepository === 'mongodb') { _%>
 import org.ff4j.mongo.store.EventRepositoryMongo;<% } %>
 <%_ if (ff4jFeatureStore === 'mongodb' || ff4jEventRepository === 'mongodb' || ff4jPropertyStore ==='mongodb') { _%>
-import org.springframework.boot.autoconfigure.mongo.MongoProperties;
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoDatabase;<% } %>
+import com.mongodb.MongoClient;<% } %>
 
 <%_ if (ff4jFeatureStore === 'cassandra') { _%>
 import org.ff4j.cassandra.store.FeatureStoreCassandra;<% } %>
@@ -133,8 +131,8 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
         ff4j.setFeatureStore(new FeatureStoreConsul(getConsulConnection()));
 		log.info("Features are stored in Consul.");
 <% } else if (ff4jFeatureStore === 'mongodb') { _%>
-		log.info("Features are stored in MongoDB dbName=[" + mongoDataBase.getName() + "]");
-		ff4j.setFeatureStore(new FeatureStoreMongo(mongoClient, mongoDataBase.getName()));
+		log.info("Features are stored in MongoDB dbName=[" + mongoDatabaseName + "]");
+		ff4j.setFeatureStore(new FeatureStoreMongo(mongoClient, mongoDatabaseName));
 <% } else if (ff4jFeatureStore === 'cassandra') { _%>
         ff4j.setFeatureStore(new FeatureStoreCassandra(getCassandraConnection()));
 		log.info("Features are store in Cassandra.");
@@ -153,7 +151,7 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
         ff4j.setPropertiesStore(new PropertyStoreConsul(getConsulConnection()));
         log.info("Properties are stored in Consul.");
 <% } else if (ff4jPropertyStore === 'mongodb') { _%>
-        ff4j.setPropertiesStore(new PropertyStoreMongo(mongoClient, mongoDataBase.getName()));
+        ff4j.setPropertiesStore(new PropertyStoreMongo(mongoClient, mongoDatabaseName));
         log.info("Properties are stored in MongoDB.");
 <% } else if (ff4jPropertyStore === 'cassandra') { _%>
         ff4j.setPropertiesStore(new PropertyStoreCassandra(getCassandraConnection()));
@@ -170,7 +168,7 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
        ff4j.setEventRepository(new EventRepositoryRedis(getRedisConnection()));
        log.info("AuditEvents are stored in Redis.");
 <% } else if (ff4jPropertyStore === 'mongodb') { _%>
-       ff4j.setEventRepository(new EventRepositoryMongo(mongoClient, mongoDataBase.getName()));
+       ff4j.setEventRepository(new EventRepositoryMongo(mongoClient, mongoDatabaseName));
        log.info("AuditEvents are stored in MongoDB.");
 <% } else if (ff4jEventRepository === 'cassandra') { _%>
        ff4j.setEventRepository(new EventRepositoryCassandra(getCassandraConnection()));
@@ -226,8 +224,8 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
     }<% } %>
 <%_ if (ff4jFeatureStore === 'mongodb' || ff4jPropertyStore ==='mongodb' || ff4jEventRepository === 'mongodb') { _%>
     //-------- MongoDB ---------
-    @Autowired
-	private MongoDatabase mongoDataBase;
+	@Value("${spring.data.mongodb.database}")
+	private String mongoDatabaseName = "appmongo";
 
     @Autowired
     private MongoClient mongoClient;<% } %>
