@@ -88,18 +88,6 @@
 	
 	<properties>	
 	  <property name="tvaRate" value="20" type="double" />
-	  <property name="zPropertyWithFixedValues" value="AMER" >
-	 	<fixedValues>
-	 		<value>AMER</value>
-	 		<value>EAST</value>
-	 		<value>EAST</value>
-	 		<value>EAST</value>
-	 	</fixedValues>
-	  </property>
-	  <property name="zPropertyDouble"   type="double"  value="12.5" />
-	  <property name="zPropertyBoolean"  type="boolean" value="true" />
-	  <property name="zPropertyString"   value="hello" />
-	  <property name="zPropertyLog" value="DEBUG" type="org.ff4j.property.PropertyLogLevel" />
 	</properties>
 	
 </ff4j>

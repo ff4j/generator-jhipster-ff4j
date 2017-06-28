@@ -89,6 +89,19 @@ import com.google.common.net.HostAndPort;
 import org.ff4j.consul.ConsulConnection;
 <% } %>
 
+<%_ if (ff4jFeatureStore === 'elastic') { _%>
+import org.ff4j.elastic.store.FeatureStoreElastic;<% } %>
+<%_ if (ff4jPropertyStore === 'elastic') { _%>
+import org.ff4j.elastic.store.PropertyStoreElasti;<% } %>
+<%_ if (ff4jEventRepository === 'elastic') { _%>
+import org.ff4j.elastic.store.EventRepositoryElastic;<% } %>
+<%_ if (ff4jFeatureStore === 'elastic' || ff4jEventRepository === 'elastic' || ff4jPropertyStore ==='elastic') { _%>
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.ff4j.elastic.ElasticConnection;
+import org.ff4j.elastic.ElasticConnectionMode;
+import org.ff4j.exception.FeatureAccessException;<% } %>
+
 /**
  * Configuration of FF4J (ff4j.org) to work with JHipster
  *
@@ -256,7 +269,7 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
      private String elasticIndexName;
 
      @Value("${ff4j.elastic.hostName}")
-     private Integer elasticHostName;
+     private String elasticHostName;
 
      @Value("${ff4j.elastic.port}")
      private Integer elasticPort;

@@ -402,8 +402,9 @@ module.exports = generator.extend( {
     	// Add default settings in Properties if the DB is not the same as current APP
     	if (this.isDbRequired('elastic')) {
     		ff4jConfig+='   elastic:\n';
-        	ff4jConfig+='      hostname: localhost\n';
+        	ff4jConfig+='      hostName: localhost\n';
         	ff4jConfig+='      port: 9200\n';
+        	ff4jConfig+='      index: ff4j\n';
     	}
     	if (this.isDbRequired('hbase')) {
     		ff4jConfig+='   hbase:\n';
