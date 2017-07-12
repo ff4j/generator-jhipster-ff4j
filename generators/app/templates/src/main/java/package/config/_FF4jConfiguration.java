@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
+import io.github.jhipster.config.JHipsterProperties;
 
 <%_ if (databaseType === 'sql' || databaseType === 'mongodb') { _%>
 import <%=packageName%>.config.DatabaseConfiguration;<% } %>
@@ -49,7 +50,6 @@ import org.ff4j.springjdbc.store.PropertyStoreSpringJdbc;<% } %>
 import org.ff4j.springjdbc.store.EventRepositorySpringJdbc;<% } %>
 <%_ if (ff4jFeatureStore === 'sql' || ff4jEventRepository === 'sql' || ff4jPropertyStore ==='sql') { _%>
 import com.zaxxer.hikari.HikariDataSource;<% } %>
-
 <%_ if (ff4jFeatureStore === 'mongodb') { _%>
 import org.ff4j.mongo.store.FeatureStoreMongo;<% } %>
 <%_ if (ff4jPropertyStore === 'mongodb') { _%>
@@ -58,7 +58,6 @@ import org.ff4j.mongo.store.PropertyStoreMongo;<% } %>
 import org.ff4j.mongo.store.EventRepositoryMongo;<% } %>
 <%_ if (ff4jFeatureStore === 'mongodb' || ff4jEventRepository === 'mongodb' || ff4jPropertyStore ==='mongodb') { _%>
 import com.mongodb.MongoClient;<% } %>
-
 <%_ if (ff4jFeatureStore === 'cassandra') { _%>
 import org.ff4j.cassandra.store.FeatureStoreCassandra;<% } %>
 <%_ if (ff4jPropertyStore === 'cassandra') { _%>
@@ -68,17 +67,17 @@ import org.ff4j.cassandra.store.EventRepositoryCassandra;<% } %>
 <%_ if (ff4jFeatureStore === 'cassandra' || ff4jEventRepository === 'cassandra' || ff4jPropertyStore ==='cassandra') { _%>
 import com.datastax.driver.core.Cluster;
 import org.ff4j.cassandra.CassandraConnection;<% } %>
-
 <%_ if (ff4jFeatureStore === 'redis') { _%>
 import org.ff4j.store.FeatureStoreRedis;<% } %>
 <%_ if (ff4jPropertyStore === 'redis') { _%>
 import org.ff4j.store.PropertyStoreRedis;<% } %>
 <%_ if (ff4jEventRepository === 'redis') { _%>
 import org.ff4j.store.EventRepositoryRedis;<% } %>
-<%_ if (ff4jFeatureStore === 'redis' || ff4jEventRepository === 'redis' || ff4jPropertyStore ==='redis') { _%>
+<%_ if (ff4jCache === 'redis') { _%>
+import org.ff4j.cache.FF4jCacheManagerRedis;<% } %>
+<%_ if (ff4jFeatureStore === 'redis' || ff4jEventRepository === 'redis' || ff4jPropertyStore ==='redis'|| ff4jCache ==='redis') { _%>
 import org.ff4j.utils.Util;
 import org.ff4j.redis.RedisConnection;<% } %>
-
 <%_ if (ff4jFeatureStore === 'consul') { _%>
 import org.ff4j.consul.store.FeatureStoreConsul;<% } %>
 <%_ if (ff4jPropertyStore === 'consul') { _%>
@@ -86,9 +85,7 @@ import org.ff4j.consul.store.PropertyStoreConsul;<% } %>
 <%_ if (ff4jFeatureStore === 'consul' || ff4jPropertyStore ==='consul') { _%>
 import com.orbitz.consul.Consul;
 import com.google.common.net.HostAndPort;
-import org.ff4j.consul.ConsulConnection;
-<% } %>
-
+import org.ff4j.consul.ConsulConnection;<% } %>
 <%_ if (ff4jFeatureStore === 'elastic') { _%>
 import org.ff4j.elastic.store.FeatureStoreElastic;<% } %>
 <%_ if (ff4jPropertyStore === 'elastic') { _%>
@@ -101,6 +98,16 @@ import java.net.URL;
 import org.ff4j.elastic.ElasticConnection;
 import org.ff4j.elastic.ElasticConnectionMode;
 import org.ff4j.exception.FeatureAccessException;<% } %>
+<%_ if (ff4jCache != 'no') { _%>
+import org.ff4j.cache.FF4JCacheManager;
+import org.ff4j.cache.FF4jCacheProxy;
+import org.ff4j.cache.FF4jJCacheManager;<% } %>
+<%_ if (ff4jCache === 'ehcache') { _%>
+import <%=packageName%>.config.ff4j.JHipsterEhCacheCacheManager;<% } %>
+<%_ if (ff4jCache === 'hazelcast') { _%>
+import com.hazelcast.core.HazelcastInstance;
+import <%=packageName%>config.ff4j.JHipsterEhCacheCacheManager;
+import <%=packageName%>.config.ff4j.JHipsterHazelcastCacheManager;<% } %>
 
 /**
  * Configuration of FF4J (ff4j.org) to work with JHipster
@@ -124,6 +131,9 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
 	/** User services of Jhispter to be used in FF4j. */
 	private final AuditEventRepository auditServices;
 	
+	/** User services of Jhispter to be used in FF4j. */
+	private final JHipsterProperties jHipsterConfig;
+	
 	@Value("${ff4j.core.autocreate}")
 	private boolean enableAutoCreate = false;
 	
@@ -139,18 +149,16 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
 	 * @param jHipsterProperties
 	 * 		settings
 	 */
-    public FF4jConfiguration(UserService user, AuditEventRepository audit) {
+    public FF4jConfiguration(JHipsterProperties jHipsterProperties, UserService user, AuditEventRepository audit) {
         this.userServices 		= user;
         this.auditServices		= audit;
+        this.jHipsterConfig     = jHipsterProperties;
+        log.info("Configuration Jhipster:" + jHipsterConfig.toString());
     }
     
     @Bean
 	public FF4j getFF4j() {
-		FF4j ff4j = new FF4j();
-
-		// Everything in-memory
-		//FF4j ff4j = new FF4j("ff4j.xml");
-		
+		FF4j ff4j = new FF4j();		
 <%_ if (ff4jFeatureStore === 'sql') { _%>
 		ff4j.setFeatureStore(new FeatureStoreSpringJdbc(hikariDataSource));
 		log.info("Features are stored in RDBMS.");
@@ -170,7 +178,6 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
         ff4j.setFeatureStore(new FeatureStoreCassandra(getCassandraConnection()));
 		log.info("Features are store in Cassandra.");
 <%_ } _%>
-
 <%_ if (ff4jPropertyStore === 'sql') { _%>
         ff4j.setPropertiesStore(new PropertyStoreSpringJdbc(hikariDataSource));
         log.info("Properties are stored in RDBMS.");
@@ -190,7 +197,6 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
         ff4j.setPropertiesStore(new PropertyStoreCassandra(getCassandraConnection()));
         log.info("Properties are store in Cassandra.");
 <%_ } _%>
-
 <%_ if (ff4jEventRepository === 'sql') { _%>
        ff4j.setEventRepository(new EventRepositorySpringJdbc(hikariDataSource));
        log.info("AuditEvents are stored in RDBMS.");
@@ -206,45 +212,42 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
 <% } else if (ff4jEventRepository === 'cassandra') { _%>
        ff4j.setEventRepository(new EventRepositoryCassandra(getCassandraConnection()));
        log.info("AuditEvents are store in Cassandra.");
-<%_ } _%>
-		
-		// Wrapper to log also in JHISPTER AUDIT
-		if (log2Jhipster) {
-			ff4j.setEventRepository(new JHipsterEventRepository(
-					ff4j.getEventRepository(), auditServices));
-		}
-		
-		/* Caching
-		FF4JCacheManager ff4jCache = new FeatureCacheProviderRedis();
-		// ignite
-		// hazelcal
-		// ehcache
+<%_ } _%>		
+<%_ if (ff4jCache === 'redis') { _%>
+		FF4JCacheManager ff4jCache = new FF4jCacheManagerRedis(getRedisConnection());<%_ } _%>
+<%_ if (ff4jCache === 'ehcache') { _%>
+		FF4JCacheManager ff4jCache = new JHipsterEhCacheCacheManager();<%_ } _%>
+<%_ if (ff4jCache === 'hazelcast') { _%>
+		FF4JCacheManager ff4jCache  = new JHipsterHazelcastCacheManager(hazelcastInstance);<%_ } _%>		
+<%_ if (ff4jCache != 'no') { _%>
 		FF4jCacheProxy cacheProxy = new FF4jCacheProxy(ff4j.getFeatureStore(), ff4j.getPropertiesStore(), ff4jCache);
 		ff4j.setFeatureStore(cacheProxy);
-		ff4j.setPropertiesStore(cacheProxy);
-		*/
-		
+		ff4j.setPropertiesStore(cacheProxy);<%_ } _%>
+		if (log2Jhipster) {
+			ff4j.setEventRepository(new JHipsterEventRepository(ff4j.getEventRepository(), auditServices));
+		}
 		ff4j.audit(enableAudit);
 		ff4j.autoCreate(enableAutoCreate);
 		ff4j.setAuthorizationsManager(new JHipsterAuthorizationManager(userServices));
 		return ff4j;
     }
+    
+<%_ if (ff4jCache === 'hazelcast') { _%>    
+ 	private HazelcastInstance hazelcastInstance;
 
+ 	@Autowired(required = false)
+ 	public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
+ 		this.hazelcastInstance = hazelcastInstance;
+ 	}<%_ } _%>
  <%_ if (ff4jFeatureStore === 'sql' || ff4jEventRepository === 'sql' || ff4jPropertyStore ==='sql') { _%>
-    //-------- SQL ----------
-	
-	// DataSource
-	private HikariDataSource hikariDataSource;
+   private HikariDataSource hikariDataSource;
 
 	@Autowired(required = false)
 	public void setHikariDataSource(HikariDataSource hikariDataSource) {
 		this.hikariDataSource = hikariDataSource;
 	}<% } %>
 <%_ if (ff4jFeatureStore === 'cassandra' || ff4jPropertyStore ==='cassandra' || ff4jEventRepository === 'cassandra') { _%>
-    //-------- Cassandra ---------
-
-    // Datastax Cassandra driver
-	private Cluster cluster;
+    private Cluster cluster;
 
     @Autowired(required = false)
     public void setClusterCassandra(Cluster cluster) {
@@ -256,15 +259,12 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
 	    return new CassandraConnection(cluster);
     }<% } %>
 <%_ if (ff4jFeatureStore === 'mongodb' || ff4jPropertyStore ==='mongodb' || ff4jEventRepository === 'mongodb') { _%>
-    //-------- MongoDB ---------
-	@Value("${spring.data.mongodb.database}")
+    @Value("${spring.data.mongodb.database}")
 	private String mongoDatabaseName = "appmongo";
 
     @Autowired
     private MongoClient mongoClient;<% } %>
 <%_ if (ff4jFeatureStore === 'elastic' || ff4jEventRepository === 'elastic' || ff4jPropertyStore ==='elastic') { _%>
-     //--------- Elastic ---------
-
      @Value("${ff4j.elastic.index}")
      private String elasticIndexName;
 
@@ -285,9 +285,8 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
  		}
  	 }
 <% } %>
-<%_ if (ff4jFeatureStore === 'redis' || ff4jEventRepository === 'redis' || ff4jPropertyStore ==='redis') { _%>
-     // --------- Redis ---------
-
+<%_ if (ff4jFeatureStore === 'redis' || ff4jEventRepository === 'redis' || ff4jPropertyStore ==='redis' || ff4jCache === 'redis') { _%>
+    
      @Value("${ff4j.redis.hostname}")
      private String redisHostName;
 
@@ -320,9 +319,7 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
 	   return new ConsulConnection(
 			Consul.builder().withHostAndPort(
 					HostAndPort.fromParts(consulHost, consulPort)).build());
-    }
-    
-<% } %>
+    }<% } %>
 
     @Bean
     public ServletRegistrationBean ff4jDispatcherServletRegistrationBean(FF4jDispatcherServlet ff4jDispatcherServlet) {
@@ -336,4 +333,3 @@ public class FF4jConfiguration extends SpringBootServletInitializer {
         return ff4jConsoleServlet;
     }
 }
-

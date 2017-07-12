@@ -6,5 +6,46 @@
       "authorEmail": "cedrick.lunven@gmail.com",
       "authorUrl": "ff4j.org"
     }
+  },
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "fr.clun.demo",
+      "nativeLanguage": "en"
+    },
+    "jhipsterVersion": "4.5.3",
+    "baseName": "appcache",
+    "packageName": "fr.clun.demo",
+    "packageFolder": "fr/clun/demo",
+    "serverPort": "8080",
+    "authenticationType": "session",
+    "hibernateCache": "ehcache",
+    "clusteredHttpSession": false,
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "h2Disk",
+    "prodDatabaseType": "mysql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
+    "enableSocialSignIn": false,
+    "rememberMeKey": "67f1bd2a34cbd20c4384da270aecceb13e36328b",
+    "clientFramework": "angular2",
+    "useSass": false,
+    "clientPackageManager": "yarn",
+    "applicationType": "monolith",
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "otherModules": [
+      {
+        "name": "generator-jhipster-ff4j",
+        "version": "1.6.6"
+      }
+    ],
+    "enableTranslation": true,
+    "nativeLanguage": "en",
+    "languages": [
+      "en"
+    ]
   }
 }

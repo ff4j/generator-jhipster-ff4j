@@ -1,6 +1,7 @@
 // --------------------------------------------------------------------------------------------
 // --- FF4j : Feature Flipping for Java
 // --------------------------------------------------------------------------------------------
+
 const chalk     	= require('chalk');
 const generator 	= require('yeoman-generator');
 const packagejs 	= require('../../package.json');
@@ -16,7 +17,7 @@ const jhipsterUtils = {};
 
 // Constants
 const TPL 					= 'template';
-const FF4J_VERSION  		= '1.6.5 ';
+const FF4J_VERSION  		= '1.6.6-SNAPSHOT';
 
 // Functions available
 module.exports = generator.extend( {
@@ -97,9 +98,7 @@ module.exports = generator.extend( {
                     choices: [
                       {name: 'No.', value: 'no'},
                       {name: 'Reuse current (' + jhipsterVar.hibernateCache + ')', value: jhipsterVar.hibernateCache},
-                      {name: 'Yes with EhCache', 		value: 'ehcache'},
-                      {name: 'Yes with Terracotta', 	value: 'terracotta'},
-                      {name: 'Yes with Ignite', 		value: 'ignite'},                
+                      {name: 'Yes with EhCache', 		value: 'ehcache'},              
                       {name: 'Yes with HazelCast', 		value: 'hazelcast'},
                       {name: 'Yes with Redis', 		  	value: 'redis'}
                 ],
@@ -332,11 +331,19 @@ module.exports = generator.extend( {
             	to: this.javaDir + 'config/ff4j/JHipsterEventRepository.java'},
             { from: this.javaTemplateDir + '/config/_SecurityCsrfRequestMatcher.java', 
             	to: this.javaDir + 'config/SecurityCsrfRequestMatcher.java'},
-           
             { from: 'src/main/resources/config/liquibase/changelog/_ff4jTables.xml',
                     to: this.resourceDir + 'config/liquibase/changelog/00000000000001_added_ff4jTables.xml', 
-                    interpolate: this.interpolateRegex }            	
+                    interpolate: this.interpolateRegex }        	
           ];
+        
+        if (this.ff4jCache === 'hazelcast') {
+        	files.push({ from: this.javaTemplateDir + '/config/ff4j/_JHipsterHazelcastCacheManager.java',  
+            	to: this.javaDir + 'config/ff4j/JHipsterHazelcastCacheManager.java'});
+        }
+        if (this.ff4jCache === 'ehcache') {
+        	files.push({ from: this.javaTemplateDir + '/config/ff4j/_JHipsterEhCacheCacheManager.java',  
+            	to: this.javaDir + 'config/ff4j/JHipsterEhCacheCacheManager.java'});
+        }
         this.log(`${chalk.bold.green('[jhipster-ff4j]')} - Import Java files`);
         this.copyFiles(files);
         
